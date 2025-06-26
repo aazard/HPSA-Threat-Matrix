@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPSA Threat Matrix™ | FQHC HIPAA Solutions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary: #1a3a6c;
+            --secondary: #2c5282;
+            --accent: #e53e3e;
+            --light: #f7fafc;
+            --dark: #1a202c;
+            --success: #38a169;
+            --warning: #dd6b20;
+            --danger: #e53e3e;
+            --gray: #718096;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: #4fd1c5;
+        }
+        
+        .logo-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #4fd1c5, #81e6d9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0aec0;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .card {
+            background: rgba(26, 32, 44, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(74, 85, 104, 0.5);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(74, 85, 104, 0.5);
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #81e6d9;
+        }
+        
+        .card-icon {
+            background: var(--secondary);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #cbd5e0;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid #2d3748;
+            background: rgba(26, 32, 44, 0.7);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4fd1c5;
+            box-shadow: 0 0 0 3px rgba(79, 209, 197, 0.2);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 14px 28px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .btn-accent {
+            background: linear-gradient(to right, #e53e3e, #c53030);
+        }
+        
+        .btn-success {
+            background: linear-gradient(to right, #38a169, #2f855a);
+        }
+        
+        .threat-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            background: rgba(26, 32, 44, 0.7);
+            border-radius: 15px;
+            border: 1px solid rgba(74, 85, 104, 0.5);
+            margin-bottom: 25px;
+        }
+        
+        .threat-score {
+            font-size: 5rem;
+            font-weight: 800;
+            margin: 20px 0;
+            background: linear-gradient(to right, #e53e3e, #f6ad55);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .threat-level {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #f6ad55;
+        }
+        
+        .threat-message {
+            font-size: 1.2rem;
+            text-align: center;
+            max-width: 700px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .risk-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .risk-card {
+            background: rgba(26, 32, 44, 0.7);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(74, 85, 104, 0.5);
+        }
+        
+        .risk-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .risk-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .risk-icon.critical {
+            background: rgba(229, 62, 62, 0.2);
+            color: #e53e3e;
+        }
+        
+        .risk-icon.high {
+            background: rgba(221, 107, 32, 0.2);
+            color: #dd6b20;
+        }
+        
+        .risk-icon.medium {
+            background: rgba(246, 173, 85, 0.2);
+            color: #f6ad55;
+        }
+        
+        .risk-card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .risk-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .risk-desc {
+            color: #a0aec0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .actions {
+            margin-top: 30px;
+        }
+        
+        .action-card {
+            background: rgba(26, 32, 44, 0.7);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid rgba(74, 85, 104, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        .action-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .action-card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #81e6d9;
+        }
+        
+        .action-list {
+            list-style: none;
+            padding-left: 20px;
+        }
+        
+        .action-list li {
+            margin-bottom: 12px;
+            padding-left: 30px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .action-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #4fd1c5;
+            font-size: 1.5rem;
+            top: -5px;
+        }
+        
+        .contact-form {
+            margin-top: 30px;
+        }
+        
+        .contact-form input, .contact-form textarea {
+            margin-bottom: 15px;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 50px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #a0aec0;
+            font-size: 0.9rem;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 5px;
+        }
+        
+        .tooltip i {
+            color: #4fd1c5;
+            font-size: 0.9rem;
+        }
+        
+        .tooltip-text {
+            visibility: hidden;
+            width: 250px;
+            background: rgba(26, 32, 44, 0.95);
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid #2d3748;
+            font-size: 0.85rem;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .report-section {
+            display: none;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background: #2d3748;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, #e53e3e, #f6ad55);
+            border-radius: 5px;
+        }
+        
+        .hardware-list {
+            margin-top: 15px;
+        }
+        
+        .hardware-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(74, 85, 104, 0.3);
+        }
+        
+        .hardware-item:last-child {
+            border-bottom: none;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .threat-score {
+                font-size: 3.5rem;
+            }
+            
+            .threat-level {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <div class="logo-text">HPSA THREAT MATRIX™</div>
+            </div>
+            <p class="subtitle">Predictive risk assessment for Federally Qualified Health Centers. Quantify vulnerabilities, prioritize actions, and prevent breaches before they occur.</p>
+        </header>
+
+        <main>
+            <div id="inputSection">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Clinic Assessment Input</h2>
+                        <div class="card-icon">
+                            <i class="fas fa-clinic-medical"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="grid">
+                        <div class="input-group">
+                            <label for="clinicName">Clinic Name</label>
+                            <input type="text" id="clinicName" placeholder="Enter clinic name">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="npi">NPI Number <span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltip-text">National Provider Identifier - Unique ID for healthcare providers</span></span></label>
+                            <input type="text" id="npi" placeholder="10-digit NPI">
+                        </div>
+                    </div>
+                    
+                    <div class="grid">
+                        <div class="input-group">
+                            <label for="patientCount">Monthly Patient Volume</label>
+                            <input type="number" id="patientCount" placeholder="Number of patients">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="staffCount">Medical Staff Count</label>
+                            <input type="number" id="staffCount" placeholder="Number of medical staff">
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="hardware">Network Hardware Profile <span class="tooltip"><i class="fas fa-info-circle"></i><span class="tooltip-text">Select the predominant network hardware in your clinic</span></span></label>
+                        <select id="hardware">
+                            <option value="">Select hardware profile</option>
+                            <option value="huawei">Huawei, ZTE, or other Chinese-manufactured</option>
+                            <option value="mixed">Mixed vendors (some Chinese hardware)</option>
+                            <option value="western">Cisco, Juniper, or other Western-manufactured</option>
+                            <option value="unknown">Unknown / Not sure</option>
+                        </select>
+                    </div>
+                    
+                    <button id="analyzeBtn" class="btn btn-block">Analyze Clinic Vulnerability</button>
+                </div>
+            </div>
+            
+            <div id="reportSection" class="report-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Threat Assessment Report</h2>
+                        <div class="card-icon">
+                            <i class="fas fa-file-medical-alt"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="threat-container">
+                        <div class="threat-score" id="threatScore">82</div>
+                        <div class="threat-level" id="threatLevel">CRITICAL RISK</div>
+                        <p class="threat-message" id="threatMessage">Your clinic is in the RED ZONE with an 82% probability of breach within 90 days. Immediate action required to prevent catastrophic data compromise and regulatory penalties.</p>
+                        
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="riskProgress" style="width: 82%"></div>
+                        </div>
+                        
+                        <div class="risk-cards">
+                            <div class="risk-card">
+                                <div class="risk-card-header">
+                                    <div class="risk-icon critical">
+                                        <i class="fas fa-network-wired"></i>
+                                    </div>
+                                    <div class="risk-card-title">Hardware Vulnerability</div>
+                                </div>
+                                <div class="risk-value" id="hardwareRisk">9.2/10</div>
+                                <div class="risk-desc">Chinese-manufactured network devices detected with known backdoors and vulnerabilities exploitable by state-sponsored actors.</div>
+                            </div>
+                            
+                            <div class="risk-card">
+                                <div class="risk-card-header">
+                                    <div class="risk-icon high">
+                                        <i class="fas fa-user-md"></i>
+                                    </div>
+                                    <div class="risk-card-title">Staffing Shortage</div>
+                                </div>
+                                <div class="risk-value" id="staffRisk">1:1,800</div>
+                                <div class="risk-desc">Current provider-to-patient ratio exceeds HHS standards by 20%, creating security process gaps and increasing breach risk.</div>
+                            </div>
+                            
+                            <div class="risk-card">
+                                <div class="risk-card-header">
+                                    <div class="risk-icon medium">
+                                        <i class="fas fa-history"></i>
+                                    </div>
+                                    <div class="risk-card-title">Breach History</div>
+                                </div>
+                                <div class="risk-value" id="breachRisk">3 incidents</div>
+                                <div class="risk-desc">Past security incidents indicate systemic vulnerabilities, with Chinese IP probes detected in the last 90 days.</div>
+                            </div>
+                        </div>
+                        
+                        <div class="hardware-list">
+                            <h3>Detected High-Risk Hardware</h3>
+                            <div class="hardware-item">
+                                <div>Huawei CE6850 Switches</div>
+                                <div class="risk-value">9.2 Risk</div>
+                            </div>
+                            <div class="hardware-item">
+                                <div>ZTE ZXDSL 931WII Modems</div>
+                                <div class="risk-value">8.7 Risk</div>
+                            </div>
+                            <div class="hardware-item">
+                                <div>Mindray BeneVision N12 Monitors</div>
+                                <div class="risk-value">7.9 Risk</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="actions">
+                        <h3>Immediate Action Plan</h3>
+                        
+                        <div class="action-card">
+                            <div class="action-card-header">
+                                <i class="fas fa-flag" style="color: #e53e3e; margin-right: 10px;"></i>
+                                <div class="action-card-title">Critical Actions (Within 72 Hours)</div>
+                            </div>
+                            <ul class="action-list">
+                                <li>Replace Huawei/ZTE network switches with Cisco or Juniper hardware ($2,800)</li>
+                                <li>Implement network segmentation to isolate medical devices from core network</li>
+                                <li>Deploy quantum-resistant encryption for patient records</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="action-card">
+                            <div class="action-card-header">
+                                <i class="fas fa-exclamation-triangle" style="color: #f6ad55; margin-right: 10px;"></i>
+                                <div class="action-card-title">High Priority Actions (Within 30 Days)</div>
+                            </div>
+                            <ul class="action-list">
+                                <li>Onboard telehealth providers to reduce staff ratio to 1:1500 ($4,000/month)</li>
+                                <li>Implement mandatory HIPAA security training for all staff</li>
+                                <li>Deploy continuous network monitoring with threat intelligence feeds</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="contact-form">
+                            <h3 style="margin-bottom: 20px;">Request Quantum Security Audit</h3>
+                            <input type="text" placeholder="Your Name">
+                            <input type="email" placeholder="Email Address">
+                            <input type="tel" placeholder="Phone Number">
+                            <textarea placeholder="Additional security concerns or requirements"></textarea>
+                            <button class="btn btn-success">Request $7,000 Quantum Audit</button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; margin-top: 30px;">
+                        <button id="newAssessment" class="btn">New Assessment</button>
+                        <button id="downloadPDF" class="btn btn-accent">Download Full Report (PDF)</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>HPSA Threat Matrix™ | FQHC HIPAA Solutions LLC</p>
+            <p>© 2025 Quantum Security Assessment Platform | Predictive Threat Intelligence for Healthcare</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const newAssessmentBtn = document.getElementById('newAssessment');
+            const downloadPDFBtn = document.getElementById('downloadPDF');
+            const inputSection = document.getElementById('inputSection');
+            const reportSection = document.getElementById('reportSection');
+            
+            // Sample clinic data for demo
+            const demoClinics = [
+                {name: "Detroit Community Health Center", npi: "1234567890", patients: 2200, staff: 4, hardware: "huawei"},
+                {name: "Grand Rapids FQHC", npi: "0987654321", patients: 1500, staff: 6, hardware: "mixed"},
+                {name: "Lansing Health Partners", npi: "1122334455", patients: 1800, staff: 5, hardware: "western"}
+            ];
+            
+            // Set random demo clinic data
+            function setDemoData() {
+                const randomClinic = demoClinics[Math.floor(Math.random() * demoClinics.length)];
+                document.getElementById('clinicName').value = randomClinic.name;
+                document.getElementById('npi').value = randomClinic.npi;
+                document.getElementById('patientCount').value = randomClinic.patients;
+                document.getElementById('staffCount').value = randomClinic.staff;
+                document.getElementById('hardware').value = randomClinic.hardware;
+            }
+            
+            // Initialize with demo data
+            setDemoData();
+            
+            analyzeBtn.addEventListener('click', function() {
+                const clinicName = document.getElementById('clinicName').value || "Community Health Center";
+                const npi = document.getElementById('npi').value || "0000000000";
+                const patients = parseInt(document.getElementById('patientCount').value) || 0;
+                const staff = parseInt(document.getElementById('staffCount').value) || 1;
+                const hardware = document.getElementById('hardware').value || "unknown";
+                
+                // Calculate risk scores based on inputs
+                let breachRisk, staffRisk, hardwareRisk, threatScore;
+                
+                // Staff risk calculation
+                const ratio = patients / (staff * 300);
+                staffRisk = ratio > 1.5 ? "1:" + Math.round(patients/staff) : "1:" + Math.round(patients/staff);
+                
+                // Hardware risk calculation
+                switch(hardware) {
+                    case "huawei":
+                        hardwareRisk = "9.2/10";
+                        breachRisk = "4 incidents";
+                        threatScore = 82;
+                        break;
+                    case "mixed":
+                        hardwareRisk = "7.5/10";
+                        breachRisk = "2 incidents";
+                        threatScore = 65;
+                        break;
+                    case "western":
+                        hardwareRisk = "3.8/10";
+                        breachRisk = "1 incident";
+                        threatScore = 38;
+                        break;
+                    default:
+                        hardwareRisk = "6.7/10";
+                        breachRisk = "3 incidents";
+                        threatScore = 72;
+                }
+                
+                // Set threat level based on score
+                let threatLevel, threatMessage;
+                if (threatScore >= 80) {
+                    threatLevel = "CRITICAL RISK";
+                    threatMessage = `Your clinic is in the RED ZONE with an ${threatScore}% probability of breach within 90 days. Immediate action required to prevent catastrophic data compromise and regulatory penalties exceeding $2M.`;
+                } else if (threatScore >= 60) {
+                    threatLevel = "HIGH RISK";
+                    threatMessage = `Your clinic is in the ORANGE ZONE with a ${threatScore}% breach probability within 180 days. Urgent mitigation actions required to avoid significant HIPAA fines.`;
+                } else if (threatScore >= 40) {
+                    threatLevel = "MEDIUM RISK";
+                    threatMessage = `Your clinic is in the YELLOW ZONE with a ${threatScore}% breach probability. Proactive measures recommended to strengthen security posture.`;
+                } else {
+                    threatLevel = "LOW RISK";
+                    threatMessage = `Your clinic is in the GREEN ZONE with a ${threatScore}% breach probability. Maintain current security protocols with regular reviews.`;
+                }
+                
+                // Update report with calculated values
+                document.getElementById('threatScore').textContent = threatScore;
+                document.getElementById('threatLevel').textContent = threatLevel;
+                document.getElementById('threatMessage').textContent = threatMessage;
+                document.getElementById('riskProgress').style.width = threatScore + '%';
+                document.getElementById('hardwareRisk').textContent = hardwareRisk;
+                document.getElementById('staffRisk').textContent = staffRisk;
+                document.getElementById('breachRisk').textContent = breachRisk;
+                
+                // Show report
+                inputSection.style.display = 'none';
+                reportSection.style.display = 'block';
+            });
+            
+            newAssessmentBtn.addEventListener('click', function() {
+                setDemoData();
+                reportSection.style.display = 'none';
+                inputSection.style.display = 'block';
+            });
+            
+            downloadPDFBtn.addEventListener('click', function() {
+                // Using html2canvas and jsPDF to generate PDF
+                const reportCard = document.querySelector('.card');
+                
+                html2canvas(reportCard).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+                    const imgWidth = 210; // A4 width in mm
+                    const pageHeight = 297; // A4 height in mm
+                    const imgHeight = canvas.height * imgWidth / canvas.width;
+                    let heightLeft = imgHeight;
+                    let position = 0;
+                    
+                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                    
+                    // Add additional pages if content is longer than one page
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeight;
+                        pdf.addPage();
+                        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+                    
+                    pdf.save('HPSA-Threat-Assessment.pdf');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
